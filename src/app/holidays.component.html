@@ -1,0 +1,10 @@
+<h3>Select a holiday:</h3>
+
+<ul class="holidays">
+  <li *ngFor="let holiday of holidays" (click)="onSelect(holiday)"
+      [class.selected]="holiday === selectedHoliday">
+    <span class="badge">{{holiday.id}}</span>
+    <span>{{holiday.name}}</span>
+
+  </li>
+</ul>
