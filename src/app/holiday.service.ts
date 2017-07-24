@@ -10,22 +10,24 @@ export class HolidayService {
 
   private headers = new Headers({'Content-Type': 'application/json'});
   private holidaysUrl = 'https://holidayapi.com/v1/holidays?key=f2871504-fd6b-4924-89d0-13e53f4f9467&country=US&year=2015';
-  
+
   constructor(private http: Http) { }
 
   extractHolidays(response): Holiday[] {
     var dateList = response.json().holidays;
     var holidays = [];
+    var dateIndex = -1;
     Object.keys(dateList).forEach(function(key,index) {
-        var holiday = dateList[key][0];
-        holiday.id = index;
-        //this.handleError(  ) ;
+      dateList[key].forEach(function(dateHoliday, index2) {
+        var holiday = dateHoliday;
+        holiday.id = ++dateIndex;
         holidays.push(holiday);
+      });
     });
-    return holidays; 
+    return holidays;
   }
 
-                      
+
   getHolidays(): Promise<Holiday[]> {
     return this.http.get(this.holidaysUrl)
       .toPromise()
@@ -39,16 +41,19 @@ export class HolidayService {
       .toPromise()
       .then ( function(response) {
             var dateList = response.json().holidays;
-            var holidays = [];
-            Object.keys(dateList).forEach(function(key,index) {
-                var holiday = dateList[key][0];
-                holiday.id = index;
-                holidays.push(holiday);
-            });
-            return holidays[id];
+            var index = -1;
+            for (var key in dateList) {
+              for (var dateIndex = 0; dateIndex < dateList[key].length; dateIndex++) {
+                if (++index == id) {
+                  var holiday = dateList[key][dateIndex];
+                  holiday.id = index;
+                  return holiday;
+                }
+              }
+            }
         }
       )
-      .catch(this.handleError);      
+      .catch(this.handleError);
   }
 
   private handleError(error: any): Promise<any> {
